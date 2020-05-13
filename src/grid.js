@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Grid, GridColumn as Column, GridToolbar } from '@progress/kendo-react-grid';
 import { process } from '@progress/kendo-data-query';
 import '@progress/kendo-theme-material/dist/all.css';
@@ -13,7 +13,20 @@ import ReactResizeDetector from 'react-resize-detector';
 
 function App(props) {
 
-    const { columns, data, ...otherProps } = props
+    const [gridProps, setGridProps] = useState(() => {
+        let cols = []
+        let datas = []
+        if (props) {
+            const { columns, data, ...otherProps } = props
+            cols = columns || cols
+            datas = data || datas
+        }
+        return {
+            columns: cols,
+            data: datas
+        }
+    })
+    const { columns, data, ...otherProps } = gridProps
 
     const [groupable, setGroupable] = useState(() => {
         const { grouping, aggregates } = otherProps
@@ -24,7 +37,7 @@ function App(props) {
     const aggregatesCol = useRef({})
 
     const [aggregates, setAggregates] = useState(() => {
-        const { aggregates } = props
+        const { aggregates } = otherProps
         if (aggregates) {
             return columns.filter(each => each.type === 'numeric').reduce((accum, each) => {
                 const { field } = each
@@ -91,7 +104,7 @@ function App(props) {
 
     const dataStateChange = (event) => {
         setState(createDataState(event.data));
-        //fetchData(event.data);
+        fetchData(event.data);
     }
 
     const expandChange = (event) => {
@@ -128,25 +141,37 @@ function App(props) {
         );
     }
 
-    // useEffect(() => {
-    //     fetchData(state.dataState)
-    // }, [])
+    useEffect(() => {
+        fetchData(state.dataState)
+    }, [])
 
     const fetchData = (dataState) => {
         const queryStr = `${toDataSourceRequestString(dataState)}`; // Serialize the state.
         const hasGroups = dataState.group && dataState.group.length;
 
-        const base_url = 'api/Products';
+        const base_url = 'http://localhost:5000/grid';
         const init = { method: 'GET', accept: 'application/json', headers: {} };
 
         fetch(`${base_url}?${queryStr}`, init)
             .then(response => response.json())
-            .then(({ data, total }) => {
+            .then(({ data, total, ...rest }) => {
+                const { columns } = rest
+                const cols = gridProps.columns.length > 0 ? gridProps.columns : (columns && columns.length > 0 ? columns :
+                    Object.keys(data[0]).map(each => {
+                        return {
+                            field: each,
+                            title: each
+                        }
+                    }))
+
+                setGridProps({ ...rest, data: data, columns: cols })
+
                 setState({
                     result: hasGroups ? translateDataSourceResultGroups(data) : data,
                     total,
                     dataState
                 });
+
             });
     }
 
@@ -165,9 +190,10 @@ function App(props) {
                     ref={exporter => exportExcelRef.current = exporter}
                 >
                     <Grid
-                        style={{ height: 700}}
+                        style={{ height: 700 }}
                         data={state.result}
                         {...state.dataState}
+                        total={state.total}
                         onDataStateChange={dataStateChange}
                         sortable={true}
                         pageable={true}
@@ -189,9 +215,9 @@ function App(props) {
                         {columns.map(each => {
                             const { type, field, title, ...otherProps } = each
                             const footerCell = aggregates ? (type === 'numeric' ? AggregatesCell : null) : null
-                            if (type === 'checkbox') return <Column {...otherProps} field={field} title={title} key={field} columnMenu={ColumnMenuCheckboxFilter} footerCell={footerCell} />
-                            else if (type === 'date') return <Column {...otherProps} field={field} title={title} filter={type} format="{0:d}" key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
-                            else return <Column {...otherProps} field={field} title={title} filter={type} key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
+                            if (type === 'checkbox') return <Column {...otherProps} field={field} title={title} width={200} key={field} columnMenu={ColumnMenuCheckboxFilter} footerCell={footerCell} />
+                            else if (type === 'date') return <Column {...otherProps} field={field} title={title} width={200} filter={type} format="{0:d}" key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
+                            else return <Column {...otherProps} field={field} title={title} width={200} filter={type} key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
                         })}
                     </Grid>
                 </ExcelExport>
