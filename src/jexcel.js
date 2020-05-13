@@ -62,12 +62,16 @@ const App = props => {
         jexcel(jexcelRef.current, options);
     }, [options]);
 
-
+    const save = () => {
+        const data = jexcelRef.getJson()
+        console.log('excel data---', data)
+    }
     console.log('jexcelRef----', jexcelRef)
     return (
         <div>
             <div ref={jexcelRef} />
-        </div>
+            {/* <input type='button' value='save' onClick={() => save()}></input> */}
+        </div >
     );
 };
 

@@ -10,29 +10,35 @@ import { toDataSourceRequestString, translateDataSourceResultGroups } from '@pro
 import { ExcelExport } from '@progress/kendo-react-excel-export';
 import ReactResizeDetector from 'react-resize-detector';
 
-const defaults = {
-    columns: [],
-    data: [],
-    groupable: true,
-    aggregates: false,
-    sortable: true,
-    pageable: true,
-    total: 0
-}
-
 function App(props) {
 
-    const [gridProps, setGridProps] = useState(defaults)
-    const { columns, data, groupable, aggregates, ...otherProps } = gridProps
+    const [gridProps, setGridProps] = useState(() => {
+        let cols = []
+        let datas = []
+        const { columns, data, ...otherProps } = props
+        if (props) {
+
+            cols = columns || cols
+            datas = data || datas
+        }
+        return {
+            ...otherProps,
+            columns: cols,
+            data: datas
+        }
+    })
+    const { columns, data, ...otherProps } = gridProps
+
+    const [groupable, setGroupable] = useState(() => {
+        const { grouping, aggregates } = otherProps
+        if (grouping && aggregates) return { footer: 'visible' }
+        else return true
+    })
 
     const aggregatesCol = useRef({})
 
-    const handleGroupable = (groupable, aggregates) => {
-        if (groupable && aggregates) return { footer: 'visible' }
-        else return groupable
-    }
-
-    const handleAggregates = (aggregates, columns) => {
+    const [aggregates, setAggregates] = useState(() => {
+        const { aggregates } = otherProps
         if (aggregates) {
             return columns.filter(each => each.type === 'numeric').reduce((accum, each) => {
                 const { field } = each
@@ -50,7 +56,8 @@ function App(props) {
             }, [])
         }
         else return null
-    }
+
+    })
 
     const createDataState = (dataState) => {
         const groups = dataState.group;
@@ -73,6 +80,7 @@ function App(props) {
 
 
     const cellRender = (tdElement, cellProps) => {
+        const { aggregates } = props
         if (aggregates) {
             if (cellProps.rowType === 'groupFooter') {
                 const { field } = cellProps
@@ -109,6 +117,7 @@ function App(props) {
     }
 
     const ColumnMenuCheckboxFilter = (configs) => {
+        console.log('filter props---', configs)
         return (
             <div>
                 <GridColumnMenuCheckboxFilter {...configs} data={data} expanded={true} />
@@ -146,7 +155,7 @@ function App(props) {
 
         fetch(`${base_url}?${queryStr}`, init)
             .then(response => response.json())
-            .then(({ Data, Total, groupable, aggregates, ...rest }) => {
+            .then(({ Data, Total, ...rest }) => {
                 const data = Data
                 const total = Total
                 const { columns } = rest
@@ -158,13 +167,7 @@ function App(props) {
                         }
                     }))
 
-                setGridProps({
-                    ...rest,
-                    data: data,
-                    columns: cols,
-                    groupable: handleGroupable(true, aggregates),
-                    aggregates: handleAggregates(aggregates, cols),
-                })
+                setGridProps({ ...rest, data: data, columns: cols })
 
                 setState({
                     result: hasGroups ? translateDataSourceResultGroups(data) : data,
@@ -181,12 +184,12 @@ function App(props) {
         exportExcelRef.current.save();
     }
 
-    console.log('grid props,state', gridProps, state)
+    console.log('grid state', state)
     if (columns.length > 0) return (
         <ReactResizeDetector handleWidth handleHeight>
             {({ width, height }) =>
                 <ExcelExport
-                    data={data}
+                    data={state.result.data}
                     ref={exporter => exportExcelRef.current = exporter}
                 >
                     <Grid

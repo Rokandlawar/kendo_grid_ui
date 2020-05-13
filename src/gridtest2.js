@@ -12,25 +12,32 @@ import ReactResizeDetector from 'react-resize-detector';
 
 const defaults = {
     columns: [],
-    data: [],
+    result: [],
     groupable: true,
     aggregates: false,
     sortable: true,
     pageable: true,
+    dataState: {
+        take: 10,
+        skip: 0,
+        group: [],
+    },
     total: 0
 }
 
-function App(props) {
+function App() {
 
-    const [gridProps, setGridProps] = useState(defaults)
-    const { columns, data, groupable, aggregates, ...otherProps } = gridProps
+    const [state, setState] = useState(defaults)
+    const { columns, result, groupable, aggregates, dataState, sortable, pageable, total, ...otherProps } = state
+
+
+
+    const handleGroupable = (grouping, aggregates) => {
+        if (grouping && aggregates) return { footer: 'visible' }
+        else return grouping
+    }
 
     const aggregatesCol = useRef({})
-
-    const handleGroupable = (groupable, aggregates) => {
-        if (groupable && aggregates) return { footer: 'visible' }
-        else return groupable
-    }
 
     const handleAggregates = (aggregates, columns) => {
         if (aggregates) {
@@ -51,28 +58,21 @@ function App(props) {
         }
         else return null
     }
-
     const createDataState = (dataState) => {
         const groups = dataState.group;
         if (groups) {
             groups.map(group => (group.aggregates = aggregates));
         }
+        const { data, total } = process(result, dataState)
         return {
-            result: process(data, dataState),
+            result: data,
+            total: total,
             dataState: dataState
         };
     }
 
-    const [state, setState] = useState(() => {
-        return createDataState({
-            take: 8,
-            skip: 0,
-            group: []
-        });
-    })
-
-
     const cellRender = (tdElement, cellProps) => {
+        const { aggregates } = state
         if (aggregates) {
             if (cellProps.rowType === 'groupFooter') {
                 const { field } = cellProps
@@ -96,22 +96,26 @@ function App(props) {
     }
 
     const dataStateChange = (event) => {
-        setState(createDataState(event.data));
+        const temp = createDataState(event.data)
+        console.log('create data state---', temp)
+        setState({ ...state, ...temp });
         fetchData(event.data);
     }
 
     const expandChange = (event) => {
         event.dataItem[event.target.props.expandField] = event.value;
         setState({
+            ...state,
             result: Object.assign({}, state.result),
             dataState: state.dataState
         });
     }
 
     const ColumnMenuCheckboxFilter = (configs) => {
+        console.log('filter props---', configs)
         return (
             <div>
-                <GridColumnMenuCheckboxFilter {...configs} data={data} expanded={true} />
+                <GridColumnMenuCheckboxFilter {...configs} data={result} expanded={true} />
             </div>
         );
     }
@@ -125,7 +129,7 @@ function App(props) {
     }
 
     const AggregatesCell = (configs) => {
-        const total = data.reduce((acc, current) => acc + current[configs.field], 0);
+        const total = result.reduce((acc, current) => acc + current[configs.field], 0);
         return (
             <td colSpan={configs.colSpan} style={configs.style}>
                 Sum: {total}
@@ -146,32 +150,25 @@ function App(props) {
 
         fetch(`${base_url}?${queryStr}`, init)
             .then(response => response.json())
-            .then(({ Data, Total, groupable, aggregates, ...rest }) => {
+            .then(({ Data, columns, grouping, aggregates, Total, ...rest }) => {
                 const data = Data
                 const total = Total
-                const { columns } = rest
-                const cols = gridProps.columns.length > 0 ? gridProps.columns : (columns && columns.length > 0 ? columns :
+                const cols = columns && columns.length > 0 ? columns :
                     Object.keys(data[0]).map(each => {
                         return {
                             field: each,
                             title: each
                         }
-                    }))
-
-                setGridProps({
+                    })
+                setState({
+                    ...state,
                     ...rest,
-                    data: data,
-                    columns: cols,
+                    total: Total,
                     groupable: handleGroupable(true, aggregates),
                     aggregates: handleAggregates(aggregates, cols),
-                })
-
-                setState({
                     result: hasGroups ? translateDataSourceResultGroups(data) : data,
-                    total,
-                    dataState
-                });
-
+                    columns: cols
+                })
             });
     }
 
@@ -181,50 +178,49 @@ function App(props) {
         exportExcelRef.current.save();
     }
 
-    console.log('grid props,state', gridProps, state)
+    console.log('grid state', state)
     if (columns.length > 0) return (
         <ReactResizeDetector handleWidth handleHeight>
-            {({ width, height }) =>
-                <ExcelExport
-                    data={data}
-                    ref={exporter => exportExcelRef.current = exporter}
+            {({ width, height }) => <ExcelExport
+                data={state.result}
+                ref={exporter => exportExcelRef.current = exporter}
+            >
+                <Grid
+                    style={{ height: 700 }}
+                    data={result}
+                    {...dataState}
+                    total={total}
+                    onDataStateChange={dataStateChange}
+                    sortable={sortable}
+                    pageable={pageable}
+                    pageSize={dataState.take}
+                    groupable={groupable}
+                    onExpandChange={expandChange}
+                    expandField="expanded"
+                    cellRender={cellRender}
                 >
-                    <Grid
-                        style={{ height: 700 }}
-                        data={state.result}
-                        {...state.dataState}
-                        total={state.total}
-                        onDataStateChange={dataStateChange}
-                        sortable={true}
-                        pageable={true}
-                        pageSize={8}
-                        groupable={groupable}
-                        onExpandChange={expandChange}
-                        expandField="expanded"
-                        cellRender={cellRender}
-                    >
-                        <GridToolbar>
-                            <button
-                                title="Export Excel"
-                                className="k-button k-primary"
-                                onClick={exportExcel}
-                            >
-                                Export to Excel
+                    <GridToolbar>
+                        <button
+                            title="Export Excel"
+                            className="k-button k-primary"
+                            onClick={exportExcel}
+                        >
+                            Export to Excel
                     </button>
-                        </GridToolbar>
-                        {columns.map(each => {
-                            const { type, field, title, ...otherProps } = each
-                            const footerCell = aggregates ? (type === 'numeric' ? AggregatesCell : null) : null
-                            if (type === 'checkbox') return <Column {...otherProps} field={field} title={title} key={field} columnMenu={ColumnMenuCheckboxFilter} footerCell={footerCell} />
-                            else if (type === 'date') return <Column {...otherProps} field={field} title={title} filter={type} format="{0:d}" key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
-                            else return <Column {...otherProps} field={field} title={title} filter={type} key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
-                        })}
-                    </Grid>
-                </ExcelExport>
+                    </GridToolbar>
+                    {columns.map(each => {
+                        const { type, field, title, ...otherProps } = each
+                        const footerCell = aggregates ? (type === 'numeric' ? AggregatesCell : null) : null
+                        if (type === 'checkbox') return <Column field={field} title={title} key={field} columnMenu={ColumnMenuCheckboxFilter} footerCell={footerCell} />
+                        else if (type === 'date') return <Column field={field} title={title} filter={type} format="{0:d}" key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
+                        else return <Column field={field} title={title} filter={type} key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
+                    })}
+                </Grid>
+            </ExcelExport>
+
             }
         </ReactResizeDetector>
     )
-
     else return null
 }
 export default App;

@@ -14,7 +14,7 @@ const grid = {
         }
     ],
     grouping: true,
-    aggregates: false,
+    aggregates: true,
     data:[
         {
             "ProductID": 1,
