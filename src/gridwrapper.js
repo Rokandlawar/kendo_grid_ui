@@ -10,13 +10,26 @@ import $ from 'jquery'
 
 
 const defaults = {
-    dataSource: {},
+    dataSource: {
+        pageSize: 10,
+        serverPaging: true,
+        serverSorting: true,
+        serverFiltering: true,
+        serverGrouping: true,
+        serverAggregates: true,
+    },
+    selectable: 'single row',
+    columnMenu: true,
     sortable: true,
-    pageable: true,
+    filterable: true,
+    resizable: true,
     scrollable: true,
+    reorderable: true,
+    pageable: true,
+    groupable: true,
     columns: [
         { field: "IsPaid", title: "Is Paid", type: 'boolean' },
-        { field: "Charge", title: "Charge", type: 'number', aggregates: true },
+        { field: "Charge", title: "Charge", type: 'amount' },
         {
             field: "Activity", title: "Activity", type: 'string'
         },
@@ -32,11 +45,11 @@ function App(props) {
     const [gridProps, setGridProps] = useState(defaults)
 
     useEffect(() => {
-
-        const columns = defaults.columns
+        const { columns, dataSource, ...otherProps } = gridProps
 
         setGridProps({
             dataSource: {
+                ...dataSource,
                 type: "webapi",
                 transport: {
                     read: {
@@ -52,7 +65,7 @@ function App(props) {
                             const { field, type } = each
                             accum[field] = {
                                 field: field,
-                                type: type === 'datetime' ? 'date' : (type || 'string')
+                                type: type === 'datetime' ? 'date' : (type === 'amount' ? 'number' : (type || 'string'))
                             }
                             return accum
                         }, {})
@@ -60,8 +73,8 @@ function App(props) {
 
                 },
                 aggregate: columns.reduce((accum, each) => {
-                    const { aggregates, field } = each
-                    if (aggregates) {
+                    const { type, field } = each
+                    if (type === 'amount') {
                         accum = accum.concat([
                             { field: field, aggregate: "sum" },
                             { field: field, aggregate: "average" }
@@ -69,16 +82,13 @@ function App(props) {
                     }
                     return accum
                 }, []),
-                pageSize: 10,
-                serverPaging: true,
-                serverSorting: true,
-                serverFiltering: true,
-                serverGrouping: true,
-                //serverAggregates: true,
             },
             columns: columns.map(each => {
                 const { field, title, aggregates, type } = each
-                let colProps = { width: '200px' }
+                let colProps = {
+                    field: field,
+                    title: title,
+                }
                 switch (type) {
                     case 'date':
                         colProps.format = "{0:MM/dd/yyyy}"
@@ -87,50 +97,32 @@ function App(props) {
                         }
                         break;
                     case 'datetime':
-                        colProps.format = "{0:MM/dd/yyyy HH:mm:ss}"
+                        colProps.format = "{0:MM/dd/yyyy hh:mm tt}"
                         colProps.filterable = {
                             ui: 'datetimepicker'
                         }
                         break;
+                    case 'amount':
+                        colProps = {
+                            ...colProps,
+                            format: "{0:c}",
+                            aggregates: ["sum", "average"],
+                            footerTemplate: " <div>Total Sum: $#= sum #</div><div>Total Average: $#= average #</div>",
+                            groupFooterTemplate: " <div>Sum: $#= sum #</div><div>Average: $#= average #</div>"
+                        }
+                        break;
                     default:
-                        colProps.filterable = true
-
-                }
-                if (aggregates) colProps = {
-                    ...colProps,
-                    field: field,
-                    title: title,
-                    aggregates: ["sum", "average"],
-                    footerTemplate: " <div>Total Sum: #= sum #</div><div>Total Average: #= average #</div>",
-                    groupFooterTemplate: " <div>Sum: #= sum #</div><div>Average: #= average #</div>"
-                }
-
-                else colProps = {
-                    ...colProps,
-                    field: field,
-                    title: title,
+                        colProps = {
+                            ...colProps
+                        }
                 }
                 return colProps
             }),
-            selectable: 'single row',
-            columnMenu: true,
-            sortable: true,
-            filterable: true,
-            resizable: true,
-            scrollable: true,
-            reorderable: true,
-            pageable: true,
-            groupable: true,
+            ...otherProps,
             height: $(document).height() - 120
         })
     }, [])
 
-    const saveToExcel = () => {
-        if (gridRef.current)
-            gridRef.current.saveAsExcel();
-    }
-
-    const gridRef = useRef(null)
     const { columns } = gridProps
 
     console.log('gridProps', gridProps)
@@ -138,7 +130,7 @@ function App(props) {
         <div style={{ height: 'calc(100% - 100px)' }}>
             <ReactResizeDetector handleWidth handleHeight>
                 {({ width, height }) =>
-                    <Grid ref={e => gridRef.current = e} width={width} {...gridProps}
+                    <Grid {...gridProps}
                     />
                 }
             </ReactResizeDetector>
