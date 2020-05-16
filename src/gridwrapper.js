@@ -92,6 +92,7 @@ function App(props) {
             columns: columns.map(each => {
                 const { field, title, aggregates, type } = each
                 let colProps = {
+                    width: '200px',
                     field: field,
                     title: title,
                 }
