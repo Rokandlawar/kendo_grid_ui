@@ -14,7 +14,7 @@ export default function App() {
         <Switch>
           <Route exact path='/grid' render={() => <Grid key='grid' />} />
           <Route exact path='/gridtest' render={() => <GridTest key='gridt' {...GridJson} />} />
-          <Route exact path='/gridwrapper' render={() => <GridWrapper key='gridw' />} />
+          <Route exact path='/' render={() => <GridWrapper key='gridw' />} />
           <Route exact path='/jexcel' component={Jexcel} />
         </Switch>
       </Router>

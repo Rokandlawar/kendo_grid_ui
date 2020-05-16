@@ -48,6 +48,12 @@ function App(props) {
         const { columns, dataSource, ...otherProps } = gridProps
 
         setGridProps({
+            toolbar: ["excel"],
+            excel: {
+                fileName: "Kendo UI Grid Export.xlsx",
+                proxyURL: 'http://localhost:59322/api/Values',
+                filterable: true
+            },
             dataSource: {
                 ...dataSource,
                 type: "webapi",
