@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Grid, GridColumn as Column, GridToolbar } from '@progress/kendo-react-grid';
+//import { Grid } from '@progress/kendo-grid-react-wrapper';
 import { process } from '@progress/kendo-data-query';
 import '@progress/kendo-theme-material/dist/all.css';
 import {
@@ -9,8 +10,24 @@ import {
 import { toDataSourceRequestString, translateDataSourceResultGroups } from '@progress/kendo-data-query';
 import { ExcelExport } from '@progress/kendo-react-excel-export';
 import ReactResizeDetector from 'react-resize-detector';
+import { DateTimePicker } from '@progress/kendo-react-dateinputs';
+import { parseDate, formatDate } from '@telerik/kendo-intl';
+import { filterBy } from '@progress/kendo-data-query';
+import useDeepCompareEffect from 'use-deep-compare-effect'
 
 function App(props) {
+
+    const formatDateValues = (data, columns) => {
+        const dateColumns = columns.filter(each => each.type === 'date' || each.type === 'datetime')
+        return data.map(each => {
+            return dateColumns.reduce((accum, e) => {
+                const { field } = e
+                console.log('date', parseDate(accum[field], 'E MMM dd yyyy'))
+                accum[field] = parseDate(accum[field])
+                return accum
+            }, each)
+        })
+    }
 
     const [gridProps, setGridProps] = useState(() => {
         let cols = []
@@ -24,7 +41,7 @@ function App(props) {
         return {
             ...otherProps,
             columns: cols,
-            data: datas
+            data: formatDateValues(datas, cols)
         }
     })
     const { columns, data, ...otherProps } = gridProps
@@ -105,7 +122,7 @@ function App(props) {
 
     const dataStateChange = (event) => {
         setState(createDataState(event.data));
-        fetchData(event.data);
+        //fetchData(event.data);
     }
 
     const expandChange = (event) => {
@@ -143,8 +160,10 @@ function App(props) {
     }
 
     useEffect(() => {
-        fetchData(state.dataState)
+        // fetchData(state.dataState)
     }, [])
+
+
 
     const fetchData = (dataState) => {
         const queryStr = `${toDataSourceRequestString(dataState)}`; // Serialize the state.
@@ -184,6 +203,65 @@ function App(props) {
         exportExcelRef.current.save();
     }
 
+    const DateTimeFilterCell = (configs) => {
+        console.log('date time configs', configs)
+        return <span>
+            <DateTimePicker
+                value={new Date()}
+            />
+        </span>
+    }
+
+    // const minGridWidth = 300;
+    // const ADJUST_PADDING = 4;
+    // const COLUMN_MIN = 4;
+    // const [gridWidth, setGridWidth] = useState({
+    //     setMinWidth: false,
+    //     gridCurrent: 0
+    // })
+
+    // const grid = useRef('')
+
+    // const handleResize = () => {
+    //     if (grid.current.offsetWidth < minGridWidth && !gridWidth.setMinWidth) {
+    //         setGridWidth({
+    //             setMinWidth: true
+    //         });
+    //     } else if (grid.current.offsetWidth > minGridWidth) {
+    //         setGridWidth({
+    //             gridCurrent: grid.current.offsetWidth,
+    //             setMinWidth: false
+    //         });
+    //     }
+    // }
+
+    // useDeepCompareEffect(() => {
+    //     if (columns.length > 0) {
+    //         grid.current = document.querySelector('.k-grid');
+    //         window.addEventListener('resize', handleResize);
+    //         setGridWidth({
+    //             gridCurrent: grid.current.offsetWidth,
+    //             setMinWidth: grid.current.offsetWidth < minGridWidth
+    //         });
+    //     }
+    // }, [columns])
+
+    // const setWidth = (minWidth) => {
+    //     let width = gridWidth.setMinWidth ? minWidth :
+    //         minWidth + (gridWidth.gridCurrent - minGridWidth) / columns.length;
+    //     // if (width < COLUMN_MIN) width = width
+    //     // else width -= ADJUST_PADDING;
+    //     return width;
+    // }
+
+    const filterChange = (event) => {
+        setState({
+            ...state,
+            result: filterBy(state.result, event.filter),
+            filter: event.filter
+        });
+    }
+
     console.log('grid state', state)
     if (columns.length > 0) return (
         <ReactResizeDetector handleWidth handleHeight>
@@ -205,6 +283,9 @@ function App(props) {
                         onExpandChange={expandChange}
                         expandField="expanded"
                         cellRender={cellRender}
+                        //filterable={true}
+                        //onFilterChange={filterChange}
+                        //filter={state.filter}
                     >
                         <GridToolbar>
                             <button
@@ -218,8 +299,10 @@ function App(props) {
                         {columns.map(each => {
                             const { type, field, title, ...otherProps } = each
                             const footerCell = aggregates ? (type === 'numeric' ? AggregatesCell : null) : null
+                            let dateFormat = "{0:G}"
+                            if (type === 'datetime') dateFormat = "{0:G}"
                             if (type === 'checkbox') return <Column {...otherProps} field={field} title={title} key={field} columnMenu={ColumnMenuCheckboxFilter} footerCell={footerCell} />
-                            else if (type === 'date') return <Column {...otherProps} field={field} title={title} filter={type} format="{0:d}" key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
+                            else if (type === 'date' || type === 'datetime') return <Column filterCell={DateTimeFilterCell} {...otherProps} field={field} title={title} key={field}  footerCell={footerCell} />
                             else return <Column {...otherProps} field={field} title={title} filter={type} key={field} columnMenu={ColumnMenu} footerCell={footerCell} />
                         })}
                     </Grid>

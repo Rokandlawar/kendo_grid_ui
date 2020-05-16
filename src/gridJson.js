@@ -1,3 +1,5 @@
+import { parseDate } from '@telerik/kendo-intl';
+
 const grid = {
     columns: [
         {
@@ -32,7 +34,7 @@ const grid = {
                 "CategoryName": "Beverages",
                 "Description": "Soft drinks, coffees, teas, beers, and ales"
             },
-            "FirstOrderedOn": new Date(1996, 8, 20)
+            "FirstOrderedOn":'2020-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 2,
@@ -50,7 +52,7 @@ const grid = {
                 "CategoryName": "Beverages",
                 "Description": "Soft drinks, coffees, teas, beers, and ales"
             },
-            "FirstOrderedOn": new Date(1996, 7, 12)
+            "FirstOrderedOn": '2020-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 3,
@@ -68,7 +70,7 @@ const grid = {
                 "CategoryName": "Condiments",
                 "Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
             },
-            "FirstOrderedOn": new Date(1996, 8, 26)
+            "FirstOrderedOn":'2020-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 4,
@@ -86,7 +88,7 @@ const grid = {
                 "CategoryName": "Condiments",
                 "Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
             },
-            "FirstOrderedOn": new Date(1996, 9, 19)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 5,
@@ -104,7 +106,7 @@ const grid = {
                 "CategoryName": "Condiments",
                 "Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
             },
-            "FirstOrderedOn": new Date(1996, 7, 17)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 6,
@@ -122,7 +124,7 @@ const grid = {
                 "CategoryName": "Condiments",
                 "Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
             },
-            "FirstOrderedOn": new Date(1996, 9, 19)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 7,
@@ -140,7 +142,7 @@ const grid = {
                 "CategoryName": "Produce",
                 "Description": "Dried fruit and bean curd"
             },
-            "FirstOrderedOn": new Date(1996, 7, 22)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 8,
@@ -158,7 +160,7 @@ const grid = {
                 "CategoryName": "Condiments",
                 "Description": "Sweet and savory sauces, relishes, spreads, and seasonings"
             },
-            "FirstOrderedOn": new Date(1996, 11, 1)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 9,
@@ -176,7 +178,7 @@ const grid = {
                 "CategoryName": "Meat/Poultry",
                 "Description": "Prepared meats"
             },
-            "FirstOrderedOn": new Date(1997, 1, 21)
+            "FirstOrderedOn": '2000-01-01T06:01:01.123Z'
         },
         {
             "ProductID": 10,
@@ -194,7 +196,7 @@ const grid = {
                 "CategoryName": "Seafood",
                 "Description": "Seaweed and fish"
             },
-            "FirstOrderedOn": new Date(1996, 8, 5)
+            "FirstOrderedOn":'2000-01-01T06:01:01.123Z'
         }
     ]
     

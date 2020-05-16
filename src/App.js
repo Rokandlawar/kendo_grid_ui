@@ -4,6 +4,7 @@ import Grid from './grid'
 import GridTest from './gridtest'
 import Jexcel from './jexcel'
 import GridJson from './gridJson'
+import GridWrapper from './gridwrapper'
 
 export default function App() {
   return (
@@ -12,7 +13,8 @@ export default function App() {
       <Router>
         <Switch>
           <Route exact path='/grid' render={() => <Grid key='grid' />} />
-          <Route exact path='/gridtest' render={() => <GridTest key='grid' {...GridJson} />} />
+          <Route exact path='/gridtest' render={() => <GridTest key='gridt' {...GridJson} />} />
+          <Route exact path='/gridwrapper' render={() => <GridWrapper key='gridw' />} />
           <Route exact path='/jexcel' component={Jexcel} />
         </Switch>
       </Router>
