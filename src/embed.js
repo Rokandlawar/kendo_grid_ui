@@ -19,12 +19,7 @@ const defaults = {
     reorderable: true,
     pageable: true,
     groupable: true,
-    columns: [
-        { field: "IsPaid", title: "Is Paid", type: 'boolean' },
-        { field: "Charge", title: "Charge", type: 'amount' },
-        { field: "Activity", title: "Activity", type: 'string' },
-        { field: 'Activity_Time', title: 'Activity Time', type: 'datetime' }
-    ],
+    columns: [],
 }
 
 
@@ -37,10 +32,10 @@ export default function Embed() {
 
     useEffect(() => {
         const handleInput = (evt) => {
-            if (evt.data && evt.data.render === 'Fields') {
+            console.log('event', evt)
+            if (evt.data && evt.data.columns) {
                 try {
-                    if (typeof evt.data.content === 'string' && evt.data.content !== '')
-                        setConfigs({ ...configs, ...evt.data.content })
+                    setConfigs({ ...configs, columns: evt.data.columns })
                 }
                 catch (ex) {
                     console.log(ex, 'JSON Failed')
@@ -49,14 +44,13 @@ export default function Embed() {
         }
         window.parent.postMessage('Initialized', "*")
         window.addEventListener('message', handleInput)
-        // setTimeout(() => {
-        //     this.rendereComplete()
-        // }, 1000)
-    }, [configs])
 
+    }, [])
+
+    console.log('embed', configs)
     if (columns.length > 0)
         return (
-            <Grid {...defaults} />
+            <Grid {...configs} />
         )
     else return null
 }
