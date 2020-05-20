@@ -10,7 +10,7 @@ const defaults = {
         serverGrouping: true,
         serverAggregates: true,
     },
-    selectable: 'single row',
+    selectable: true,
     columnMenu: true,
     sortable: true,
     filterable: true,
@@ -29,19 +29,26 @@ export default function Embed() {
     const [configs, setConfigs] = useState(defaults)
 
     const { columns } = configs
-
-    useEffect(() => {
-        const handleInput = (evt) => {
-            console.log('event', evt)
-            if (evt.data && evt.data.columns) {
-                try {
-                    setConfigs({ ...configs, columns: evt.data.columns })
-                }
-                catch (ex) {
-                    console.log(ex, 'JSON Failed')
-                }
+    const handleInput = (evt) => {
+        console.log('event', evt)
+        if (evt.data && evt.data.columns) {
+            try {
+                setConfigs({ ...configs, columns: evt.data.columns })
+            }
+            catch (ex) {
+                console.log(ex, 'JSON Failed')
             }
         }
+    }
+
+    const onSelection = (row) => {
+        console.log('selected', row)
+        if (row) {
+            window.parent.postMessage(JSON.stringify(row), "*")
+        }
+    }
+
+    useEffect(() => {
         window.parent.postMessage('Initialized', "*")
         window.addEventListener('message', handleInput)
 
@@ -50,7 +57,7 @@ export default function Embed() {
     console.log('embed', configs)
     if (columns.length > 0)
         return (
-            <Grid {...configs} />
+            <Grid {...configs} edit={onSelection} />
         )
     else return null
 }

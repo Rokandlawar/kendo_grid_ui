@@ -38,10 +38,15 @@ function App(props) {
             });
         }
     }
-    
+
+    const handleChange = (e) => {
+        const grid = e.sender
+        const selected = grid.dataItem(grid.select());
+        props.edit(selected);
+    }
 
     const [gridProps, setGridProps] = useState(() => {
-        const { columns, dataSource, ...otherProps } = props
+        const { columns, dataSource, edit, ...otherProps } = props
         const numOfCols = columns.length
         const minColWidth = minGridWidth / numOfCols
         return {
@@ -122,8 +127,9 @@ function App(props) {
                 }
                 return colProps
             }),
+            change: handleChange,
             ...otherProps,
-            height: $(document).height() 
+            height: $(document).height()
         }
     })
 
