@@ -1,7 +1,7 @@
 import Grid from './grid'
 import React, { useEffect, useState } from 'react';
 
-const defaults = {
+export const defaults = {
     dataSource: {
         pageSize: 10,
         serverPaging: true,
@@ -24,16 +24,19 @@ const defaults = {
 
 
 
-export default function Embed() {
+export default function Embed(props) {
 
-    const [configs, setConfigs] = useState(defaults)
+    const [configs, setConfigs] = useState(() => {
+        if (props) return { ...defaults, ...props }
+        else return defaults
+    })
 
     const { columns } = configs
     const handleInput = (evt) => {
         console.log('event', evt)
         if (evt.data && evt.data.columns) {
             try {
-                setConfigs({ ...configs, columns: evt.data.columns })
+                setConfigs({ ...configs, columns: evt.data.columns, url: evt.data.url })
             }
             catch (ex) {
                 console.log(ex, 'JSON Failed')
@@ -51,7 +54,6 @@ export default function Embed() {
     useEffect(() => {
         window.parent.postMessage('Initialized', "*")
         window.addEventListener('message', handleInput)
-
     }, [])
 
     console.log('embed', configs)

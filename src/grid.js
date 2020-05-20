@@ -13,6 +13,7 @@ function App(props) {
 
     const minGridWidth = 700
     const gridRef = useRef(null)
+
     const [size, setSize] = useState({
         setMinWidth: false,
         gridCurrent: 0
@@ -46,7 +47,7 @@ function App(props) {
     }
 
     const [gridProps, setGridProps] = useState(() => {
-        const { columns, dataSource, edit, ...otherProps } = props
+        const { columns, dataSource, edit, url, ...otherProps } = props
         const numOfCols = columns.length
         const minColWidth = minGridWidth / numOfCols
         return {
@@ -61,7 +62,7 @@ function App(props) {
                 type: "webapi",
                 transport: {
                     read: {
-                        url: 'http://localhost:59322/api/Values'
+                        url: url
                     },
                 },
                 schema: {
@@ -133,6 +134,8 @@ function App(props) {
         }
     })
 
+
+
     useEffect(() => {
         gridRef.current = document.querySelector('.k-grid');
         window.addEventListener('resize', handleResize);
@@ -140,7 +143,11 @@ function App(props) {
             gridCurrent: gridRef.current.offsetWidth,
             setMinWidth: gridRef.current.offsetWidth < minGridWidth
         });
+
     }, [])
+
+
+    
 
     console.log('gridProps', gridProps)
 
@@ -148,7 +155,7 @@ function App(props) {
         <div style={{ height: 'calc(100% - 100px)' }}>
             <ReactResizeDetector handleWidth handleHeight>
                 {({ width, height }) =>
-                    <Grid {...gridProps} ref={e => gridRef.current = e}
+                    <Grid id="grid" {...gridProps} ref={(e) => gridRef.current = e}
                     />
                 }
             </ReactResizeDetector>
