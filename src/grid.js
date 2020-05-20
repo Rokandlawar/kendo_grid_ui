@@ -38,17 +38,17 @@ function App(props) {
             });
         }
     }
-    
+
 
     const [gridProps, setGridProps] = useState(() => {
-        const { columns, dataSource, ...otherProps } = props
+        const { columns, dataSource, url, ...otherProps } = props
         const numOfCols = columns.length
         const minColWidth = minGridWidth / numOfCols
         return {
             toolbar: ["excel"],
             excel: {
                 fileName: "Kendo UI Grid Export.xlsx",
-                proxyURL: 'http://localhost:59322/api/Values',
+                proxyURL: props.url,
                 filterable: true
             },
             dataSource: {
@@ -56,7 +56,7 @@ function App(props) {
                 type: "webapi",
                 transport: {
                     read: {
-                        url: 'http://localhost:59322/api/Values'
+                        url: props.url
                     },
                 },
                 schema: {
@@ -123,7 +123,7 @@ function App(props) {
                 return colProps
             }),
             ...otherProps,
-            height: $(document).height() 
+            height: $(document).height()
         }
     })
 
