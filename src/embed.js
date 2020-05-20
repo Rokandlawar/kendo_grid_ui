@@ -47,7 +47,7 @@ export default function Embed(props) {
                 }
             }
         }
-        window.parent.postMessage('Initialized', "*")
+        window.parent.postMessage('Initialized', "*") //window.postMessage ()
         window.addEventListener('message', handleInput)
     }, [])
 

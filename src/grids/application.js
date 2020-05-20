@@ -5,7 +5,7 @@ import Embed from '../grid';
 import { defaults } from '../embed';
 
 const columns = [{ field: 'Id', title: 'Application Number' },
-{ field: 'Type', title: 'Type' },
+{ field: 'Name', title: 'Type' },
 { field: 'Fiscal', title: 'Fiscal Year' },
 { field: 'Company', title: 'Company Name' },
 { field: 'Phone', title: 'Phone' },

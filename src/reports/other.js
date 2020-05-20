@@ -9,8 +9,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 const allColumns = {
 
     'Application': {
-        columns: [{ field: 'ApplicationNumber', title: 'Application Number' },
-        { field: 'Type', title: 'Type' },
+        columns: [{ field: 'Id', title: 'Application Number' },
+        { field: 'Name', title: 'Type' },
         { field: 'Company', title: 'Company Name' },
         { field: 'Phone', title: 'Phone' },
         { field: 'Email', title: 'Email' },
@@ -44,10 +44,10 @@ const allColumns = {
 
     'Permit': {
         columns: [{ field: 'PermitNumber', title: 'Permit Number' },
-        { field: 'Type', title: 'Type' },
+        { field: 'Name', title: 'Type' },
         { field: 'Company', title: 'Company Name' },
         { field: 'DOTNumber', title: 'DOT Number' },
-        { field: 'Contact', title: 'Contact' }]
+        { field: 'CreatedBy', title: 'Contact' }]
     },
 
     'SkuActivity': {
@@ -55,11 +55,11 @@ const allColumns = {
         { field: 'FunctionCode', title: 'Function Code' },
         { field: 'RevenueCode', title: 'Revenue Code' },
         { field: 'ActivityCode', title: 'Activity Code' },
-        { field: 'ActivityName', title: 'Activity Name' },
+        { field: 'Name', title: 'Activity Name' },
         { field: 'DOTNumber', title: 'DOT Number' },
         { field: 'CompanyName', title: 'Company Name' },
-        { field: 'CompanyCode', title: 'Company Code' },
-        { field: 'BillingCycles', title: 'Billing Cycles' },
+        { field: 'VendorCode', title: 'Company Code' },
+        // { field: 'BillingCycles', title: 'Billing Cycles' },
         { field: 'CameraEvent', title: 'Camera Event' },
         { field: 'ConfirmationNumber', title: 'Confirmation Number' },
         { field: 'InvoiceCycle', title: 'Invoice Cycle' },

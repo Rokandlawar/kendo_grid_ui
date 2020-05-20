@@ -5,10 +5,10 @@ import Embed from '../grid';
 import { defaults } from '../embed';
 
 const columns = [{ field: 'PermitNumber', title: 'Permit Number' },
-{ field: 'Type', title: 'Type' },
+{ field: 'Name', title: 'Type' },
 { field: 'Company', title: 'Company Name' },
 { field: 'DOTNumber', title: 'DOT Number' },
-{ field: 'Contact', title: 'Contact' }]
+{ field: 'CreatedBy', title: 'Contact' }]
 
 export default function ReportsView() {
     const settings = { ...defaults, columns }

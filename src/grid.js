@@ -7,12 +7,20 @@ import '@progress/kendo-ui/js/kendo.dateinput';
 import '@progress/kendo-ui/js/kendo.datetimepicker';
 import '@progress/kendo-ui/js/kendo.grid';
 import $ from 'jquery'
+import { Button } from '@material-ui/core';
+import ReactDOM from 'react-dom';
 
+
+
+const getGrid = () => {
+    return $('.k-grid').data('kendoGrid');
+}
 
 function App(props) {
 
     const minGridWidth = 700
     const gridRef = useRef(null)
+
     const [size, setSize] = useState({
         setMinWidth: false,
         gridCurrent: 0
@@ -39,6 +47,11 @@ function App(props) {
         }
     }
 
+    const handleRowClick = (e, dataItem) => {
+        const selected = gridRef.current.select()
+        console.log('click', selected)
+    }
+
 
     const [gridProps, setGridProps] = useState(() => {
         const { columns, dataSource, url, ...otherProps } = props
@@ -47,9 +60,9 @@ function App(props) {
         return {
             toolbar: ["excel"],
             excel: {
-                fileName: "Kendo UI Grid Export.xlsx",
-                proxyURL: props.url,
-                filterable: true
+                // fileName: "Excel.xlsx",
+                allPages: true,
+                //  filterable: true
             },
             dataSource: {
                 ...dataSource,
@@ -123,9 +136,12 @@ function App(props) {
                 return colProps
             }),
             ...otherProps,
-            height: $(document).height()
+            height: $(document).height(),
+            change: handleRowClick
         }
     })
+
+
 
     useEffect(() => {
         gridRef.current = document.querySelector('.k-grid');
@@ -134,15 +150,26 @@ function App(props) {
             gridCurrent: gridRef.current.offsetWidth,
             setMinWidth: gridRef.current.offsetWidth < minGridWidth
         });
+
     }, [])
+
+
+    const saveToExcel = () => {
+        let gridItem = getGrid()
+        if (gridItem)
+            gridItem.saveAsExcel();
+    }
 
     console.log('gridProps', gridProps)
 
     return (
         <div style={{ height: 'calc(100% - 100px)' }}>
+            {/* <div className="row col">
+                <Button variant="outlined" color='primary' onClick={saveToExcel}>Excel</Button>
+            </div> */}
             <ReactResizeDetector handleWidth handleHeight>
                 {({ width, height }) =>
-                    <Grid {...gridProps} ref={e => gridRef.current = e}
+                    <Grid id="grid" {...gridProps} ref={(e) => gridRef.current = e}
                     />
                 }
             </ReactResizeDetector>

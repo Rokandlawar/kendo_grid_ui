@@ -18,7 +18,7 @@ const columns = [
 export default function ReportsView() {
     const [date, setDate] = useState(null);
     const [selectdate, setSelecDate] = useState(null);
-
+    const settings = { ...defaults, columns }
 
     const dateChange = (e) => {
         console.log("here 1")
@@ -34,7 +34,7 @@ export default function ReportsView() {
                 onChange={dateChange}
             />
 
-            {date && <Embed url={`http://localhost:50147/api/Reports/Date?dt=${date}`} columns={columns} {...defaults} />}
+            {date && <Embed url={`http://localhost:50147/api/Reports/Date?dt=${date}`} {...settings}  />}
         </div>
     )
 }
