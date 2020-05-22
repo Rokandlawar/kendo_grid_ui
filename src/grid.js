@@ -7,12 +7,14 @@ import '@progress/kendo-ui/js/kendo.dateinput';
 import '@progress/kendo-ui/js/kendo.datetimepicker';
 import '@progress/kendo-ui/js/kendo.grid';
 import $ from 'jquery'
-
+import JSZip from 'jszip'
 
 function App(props) {
 
     const minGridWidth = 700
     const gridRef = useRef(null)
+    const exporttoExcel = useRef(null)
+    const gridExport = useRef(null)
 
     const [size, setSize] = useState({
         setMinWidth: false,
@@ -41,6 +43,7 @@ function App(props) {
     }
 
     const handleChange = (e) => {
+        gridExport.current = e.sender
         const grid = e.sender
         const selected = grid.dataItem(grid.select());
         props.edit(selected);
@@ -53,9 +56,9 @@ function App(props) {
         return {
             toolbar: ["excel"],
             excel: {
-                fileName: "Kendo UI Grid Export.xlsx",
-                proxyURL: url,//'http://localhost:59322/api/Values',
-                filterable: true
+                fileName: "Export.xlsx",
+                filterable: true,
+                allPages: true
             },
             dataSource: {
                 ...dataSource,
@@ -137,6 +140,7 @@ function App(props) {
 
 
     useEffect(() => {
+        window.JSZip = JSZip
         gridRef.current = document.querySelector('.k-grid');
         window.addEventListener('resize', handleResize);
         setSize({
@@ -145,9 +149,6 @@ function App(props) {
         });
 
     }, [])
-
-
-    
 
     console.log('gridProps', gridProps)
 
