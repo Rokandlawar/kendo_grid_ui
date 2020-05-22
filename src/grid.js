@@ -54,7 +54,7 @@ function App(props) {
             toolbar: ["excel"],
             excel: {
                 fileName: "Kendo UI Grid Export.xlsx",
-                proxyURL: 'http://localhost:59322/api/Values',
+                proxyURL: url,//'http://localhost:59322/api/Values',
                 filterable: true
             },
             dataSource: {
