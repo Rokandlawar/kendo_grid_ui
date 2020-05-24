@@ -11,39 +11,7 @@ import JSZip from 'jszip'
 
 function App(props) {
 
-    const minGridWidth = 700
-    const gridRef = useRef(null)
-    const exporttoExcel = useRef(null)
-    const gridExport = useRef(null)
-
-    const [size, setSize] = useState({
-        setMinWidth: false,
-        gridCurrent: 0
-    })
-    const setWidth = (minWidth, numOfCols) => {
-        let width = minWidth
-        if (gridRef.current) {
-            width = size.setMinWidth ? minWidth :
-                minWidth + (size.gridCurrent - minGridWidth) / numOfCols;
-        }
-        return width;
-    }
-
-    const handleResize = () => {
-        if (gridRef.current.offsetWidth < minGridWidth && !size.setMinWidth) {
-            setSize({
-                setMinWidth: true
-            });
-        } else if (gridRef.current.offsetWidth > minGridWidth) {
-            setSize({
-                gridCurrent: gridRef.current.offsetWidth,
-                setMinWidth: false
-            });
-        }
-    }
-
     const handleChange = (e) => {
-        gridExport.current = e.sender
         const grid = e.sender
         const selected = grid.dataItem(grid.select());
         props.edit(selected);
@@ -51,8 +19,6 @@ function App(props) {
 
     const [gridProps, setGridProps] = useState(() => {
         const { columns, dataSource, edit, url, ...otherProps } = props
-        const numOfCols = columns.length
-        const minColWidth = minGridWidth / numOfCols
         return {
             toolbar: ["excel"],
             excel: {
@@ -98,7 +64,7 @@ function App(props) {
             columns: columns.map(each => {
                 const { field, title, aggregates, type } = each
                 let colProps = {
-                    width: setWidth(minColWidth, numOfCols),
+                    width: '200px',
                     field: field,
                     title: title,
                 }
@@ -141,13 +107,6 @@ function App(props) {
 
     useEffect(() => {
         window.JSZip = JSZip
-        gridRef.current = document.querySelector('.k-grid');
-        window.addEventListener('resize', handleResize);
-        setSize({
-            gridCurrent: gridRef.current.offsetWidth,
-            setMinWidth: gridRef.current.offsetWidth < minGridWidth
-        });
-
     }, [])
 
     console.log('gridProps', gridProps)
@@ -156,7 +115,7 @@ function App(props) {
         <div style={{ height: 'calc(100% - 100px)' }}>
             <ReactResizeDetector handleWidth handleHeight>
                 {({ width, height }) =>
-                    <Grid id="grid" {...gridProps} ref={(e) => gridRef.current = e}
+                    <Grid id="grid" {...gridProps}
                     />
                 }
             </ReactResizeDetector>

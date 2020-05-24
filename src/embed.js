@@ -34,9 +34,10 @@ export default function Embed(props) {
     const { columns } = configs
     const handleInput = (evt) => {
         console.log('event', evt)
-        if (evt.data && evt.data.columns) {
+        if (evt.data) {
+            const { columns, url } = evt.data
             try {
-                setConfigs({ ...configs, columns: evt.data.columns, url: evt.data.url })
+                setConfigs({ ...configs, columns: columns, url: url })
             }
             catch (ex) {
                 console.log(ex, 'JSON Failed')

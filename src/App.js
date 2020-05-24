@@ -2,6 +2,7 @@ import React from 'react';
 import { HashRouter as Router, Switch, Route } from 'react-router-dom';
 import '@progress/kendo-theme-material/dist/all.css';
 import EmbeddedGrid from './embed'
+import Jexcel from './jexcel'
 //Grids
 import CompanyGrid from './grids/company'
 import ApplicationGrid from './grids/application'
@@ -19,6 +20,7 @@ export default function App() {
     <Router>
       <Switch>
         <Route exact path='/' component={EmbeddedGrid} />
+        <Route exact path='/jexcel' component={Jexcel} />
         <Route exact path='/application' component={ApplicationGrid} />
         <Route exact path='/permit' component={PermitGrid} />
         <Route exact path='/company' component={CompanyGrid} />
