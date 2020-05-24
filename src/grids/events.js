@@ -1,6 +1,5 @@
 import React from 'react';
-import Embed from '../grid';
-import { defaults } from '../embed';
+import Embed from '../embed';
 
 const columns = [ 
     { field: 'Id', title: 'Event Id' },
@@ -14,10 +13,9 @@ const columns = [
 ]
 
 export default function ReportsView() {
-    const settings = { ...defaults, columns }
     return (
         <div className="m-2">
-                <Embed url={`http://localhost:50147/api/Reports/Events`} {...settings}  />
+                <Embed url={`http://localhost:50147/api/Reports/Events`} columns={columns}  />
         </div>
     )
 }
