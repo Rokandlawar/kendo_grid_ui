@@ -69,9 +69,9 @@ function App(props) {
                     },
                 },
                 schema: {
-                    data: "Data",
-                    total: "Total",
-                    errors: "Errors",
+                    data: "data",
+                    total: "total",
+                    errors: "errors",
                     model: {
                         fields: columns.reduce((accum, each) => {
                             const { field, type } = each
@@ -98,7 +98,7 @@ function App(props) {
             columns: columns.map(each => {
                 const { field, title, aggregates, type } = each
                 let colProps = {
-                    width: setWidth(minColWidth, numOfCols),
+                    width: '250px',//setWidth(minColWidth, numOfCols),
                     field: field,
                     title: title,
                 }
@@ -141,12 +141,12 @@ function App(props) {
 
     useEffect(() => {
         window.JSZip = JSZip
-        gridRef.current = document.querySelector('.k-grid');
-        window.addEventListener('resize', handleResize);
-        setSize({
-            gridCurrent: gridRef.current.offsetWidth,
-            setMinWidth: gridRef.current.offsetWidth < minGridWidth
-        });
+        // gridRef.current = document.querySelector('.k-grid');
+        // window.addEventListener('resize', handleResize);
+        // setSize({
+        //     gridCurrent: gridRef.current.offsetWidth,
+        //     setMinWidth: gridRef.current.offsetWidth < minGridWidth
+        // });
 
     }, [])
 
@@ -154,7 +154,7 @@ function App(props) {
 
     return (
         <div style={{ height: 'calc(100% - 100px)' }}>
-            <ReactResizeDetector handleWidth handleHeight>
+            <ReactResizeDetector handleWidth handleHeight refreshMode='throttle' refreshRate={2000} >
                 {({ width, height }) =>
                     <Grid id="grid" {...gridProps} ref={(e) => gridRef.current = e}
                     />
