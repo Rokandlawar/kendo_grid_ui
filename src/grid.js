@@ -92,17 +92,26 @@ class App extends Component {
             }),
             change: this.handleChange,
             ...otherProps,
-            height: 700
+            height: $(document).height()-25
 
         }
+
     }
 
     componentDidMount() {
-        // let dom = window.$(ReactDOM.findDOMNode(this.elem))
-        // console.log('dom',dom.data('kendoGrid'))
-        // this.grid = dom.data('kendoGrid')
+        let dom = $(ReactDOM.findDOMNode(this.elem))
+        console.log('dom', dom.data('kendoGrid'))
+        this.grid = dom.data('kendoGrid')
     }
 
+    componentWillUnmount() {
+        if (this.grid) {
+            let settings = this.grid.getOptions();
+            localStorage.setItem('griddata', kendo.stringify(settings));
+        }
+        delete this.grid
+
+    }
 
     handleChange = (e) => {
         const grid = e.sender
@@ -111,8 +120,6 @@ class App extends Component {
         const row = JSON.stringify(selected)
         this.props.edit({ ...JSON.parse(row), id: selected.id });
     }
-
-
 
     verifyOpts = (opts) => {
         if (!this.props.reload) {
@@ -137,21 +144,23 @@ class App extends Component {
 
     render() {
         const { state } = this
+        const opts = this.verifyOpts(state);
         return (
             <div style={{ height: 'calc(100% - 100px)' }}>
-                <ReactResizeDetector handleWidth handleHeight>
-                    {({ width, height }) =>
-                        <Grid id="grid"
-                            ref={e => this.elem = e}
-                            {...state}
-                        />
-                    }
-                </ReactResizeDetector>
+                <ReactResizeDetector handleWidth handleHeight refreshMode='throttle' refreshRate={2000}>
+                        {
+                            (width, height) => {
+                                return  <Grid id="grid"
+                                ref={e => this.elem = e}
+                                {...opts}
+                            />
+                            }
+                        }
+                    </ReactResizeDetector>
+
             </div>
         )
     }
-
-
 
 }
 export default App;
