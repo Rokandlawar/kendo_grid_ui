@@ -27,6 +27,7 @@ export const defaults = {
 export default function Embed(props) {
 
     const [configs, setConfigs] = useState(() => {
+        console.log('props', props)
         if (props) return { ...defaults, ...props }
         else return defaults
     })
@@ -36,11 +37,13 @@ export default function Embed(props) {
         console.log('event', evt)
         if (evt.data) {
             const { columns, url } = evt.data
-            try {
-                setConfigs({ ...configs, columns: columns, url: url })
-            }
-            catch (ex) {
-                console.log(ex, 'JSON Failed')
+            if (columns && url) {
+                try {
+                    setConfigs({ ...configs, columns: columns, url: url })
+                }
+                catch (ex) {
+                    console.log(ex, 'JSON Failed')
+                }
             }
         }
     }
@@ -48,7 +51,7 @@ export default function Embed(props) {
     const onSelection = (row) => {
         console.log('selected', row)
         if (row) {
-            window.parent.postMessage(JSON.stringify(row), "*")
+            window.parent.postMessage(row, "*")
         }
     }
 

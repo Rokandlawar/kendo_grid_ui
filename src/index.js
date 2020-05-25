@@ -3,7 +3,12 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import '@progress/kendo-ui'
+import JSZip from 'jszip'
+import $ from 'jquery'
 
+window.JSZip = JSZip
+window.$ = $
 ReactDOM.render(
   <App />,
   document.getElementById('root')
