@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './src/App';
+import './src/index.css';
 import '@progress/kendo-theme-material/dist/all.css';
 
 let elem = document.createElement('div')

@@ -20,6 +20,11 @@ export const defaults = {
     pageable: true,
     groupable: true,
     columns: [],
+    pageable: {
+        refresh: true,
+        buttonCount: 5,
+        pageSizes: [20, 40, 100, 200],
+    }
 }
 
 
@@ -36,10 +41,10 @@ export default function Embed(props) {
     const handleInput = (evt) => {
         console.log('event', evt)
         if (evt.data) {
-            const { columns, url } = evt.data
-            if (columns && url) {
+            const { columns, url, param, sort } = evt.data
+            if (columns && url && param) {
                 try {
-                    setConfigs({ ...configs, columns: columns, url: url })
+                    setConfigs({ ...configs, columns: columns, url: url, param, sort })
                 }
                 catch (ex) {
                     console.log(ex, 'JSON Failed')
@@ -60,7 +65,6 @@ export default function Embed(props) {
         window.addEventListener('message', handleInput)
     }, [])
 
-    console.log('embed', configs)
     if (columns.length > 0)
         return (
             <Grid {...configs} edit={onSelection} />
