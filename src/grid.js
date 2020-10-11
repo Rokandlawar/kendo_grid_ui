@@ -12,92 +12,100 @@ import clone from 'lodash/clone';
 class App extends Component {
     constructor(props) {
         super(props);
-        const { columns, dataSource, edit, url, sort, ...otherProps } = props
-        this.state = {
-            toolbar: ["excel"],
-            excel: {
-                fileName: "Export.xlsx",
-                filterable: true,
-                allPages: true
-            },
-            dataSource: {
-                ...dataSource,
-                type: "webapi",
-                transport: {
-                    read: {
-                        url: url
-                    },
-                },
-                schema: {
-                    data: "data",
-                    total: "total",
-                    errors: "errors",
-                    model: {
-                        fields: columns.reduce((accum, each) => {
-                            const { field, type } = each
-                            accum[field] = {
-                                field: field,
-                                type: type === 'datetime' ? 'date' : (type === 'amount' ? 'number' : (type || 'string'))
-                            }
-                            return accum
-                        }, {})
-                    }
-
-                },
-                sort: { field: sort || 'id', dir: 'desc' },
-                aggregate: columns.reduce((accum, each) => {
-                    const { type, field } = each
-                    if (type === 'amount') {
-                        accum = accum.concat([
-                            { field: field, aggregate: "sum" },
-                            { field: field, aggregate: "average" }
-                        ])
-                    }
-                    return accum
-                }, []),
-            },
-            columns: columns.map(each => {
-                const { field, title, aggregates, type } = each
-                let colProps = {
-                    width: '200px',
-                    field: field,
-                    title: title,
-                }
-                switch (type) {
-                    case 'date':
-                        colProps.format = "{0:MM/dd/yyyy}"
-                        colProps.filterable = {
-                            ui: 'datepicker'
-                        }
-                        break;
-                    case 'datetime':
-                        colProps.format = "{0:MM/dd/yyyy hh:mm tt}"
-                        colProps.filterable = {
-                            ui: 'datetimepicker'
-                        }
-                        break;
-                    case 'amount':
-                        colProps = {
-                            ...colProps,
-                            format: "{0:c}",
-                            aggregates: ["sum", "average"],
-                            // footerTemplate: " <div>Total Sum: $#= sum #</div><div>Total Average: $#= average #</div>",
-                            groupFooterTemplate: " <div>Sum: $#= sum #</div><div>Average: $#= average #</div>"
-                        }
-                        break;
-                    default:
-                        colProps = {
-                            ...colProps
-                        }
-                }
-                return colProps
-            }),
-            change: this.handleChange,
-            ...otherProps,
-            height: $(document).height() - 25
-
+        const { columns, dataSource, edit, url, sort, settings, ...otherProps } = props
+        try {
+            if (settings !== null)
+                this.state = { ...JSON.parse(settings), change: this.handleChange }
+            else
+                throw 'Fail'
         }
+        catch (ex) {
+            console.log(ex)
+            this.state = {
+                toolbar: ["excel"],
+                excel: {
+                    fileName: "Export.xlsx",
+                    filterable: true,
+                    allPages: true
+                },
+                dataSource: {
+                    ...dataSource,
+                    type: "webapi",
+                    transport: {
+                        read: {
+                            url: url
+                        },
+                    },
+                    schema: {
+                        data: "data",
+                        total: "total",
+                        errors: "errors",
+                        model: {
+                            fields: columns.reduce((accum, each) => {
+                                const { field, type } = each
+                                accum[field] = {
+                                    field: field,
+                                    type: type === 'datetime' ? 'date' : (type === 'amount' ? 'number' : (type || 'string'))
+                                }
+                                return accum
+                            }, {})
+                        }
 
+                    },
+                    sort: { field: sort || 'id', dir: 'desc' },
+                    aggregate: columns.reduce((accum, each) => {
+                        const { type, field } = each
+                        if (type === 'amount') {
+                            accum = accum.concat([
+                                { field: field, aggregate: "sum" },
+                                { field: field, aggregate: "average" }
+                            ])
+                        }
+                        return accum
+                    }, []),
+                },
+                columns: columns.map(each => {
+                    const { field, title, aggregates, type } = each
+                    let colProps = {
+                        width: '200px',
+                        field: field,
+                        title: title,
+                    }
+                    switch (type) {
+                        case 'date':
+                            colProps.format = "{0:MM/dd/yyyy}"
+                            colProps.filterable = {
+                                ui: 'datepicker'
+                            }
+                            break;
+                        case 'datetime':
+                            colProps.format = "{0:MM/dd/yyyy hh:mm tt}"
+                            colProps.filterable = {
+                                ui: 'datetimepicker'
+                            }
+                            break;
+                        case 'amount':
+                            colProps = {
+                                ...colProps,
+                                format: "{0:c}",
+                                aggregates: ["sum", "average"],
+                                // footerTemplate: " <div>Total Sum: $#= sum #</div><div>Total Average: $#= average #</div>",
+                                groupFooterTemplate: " <div>Sum: $#= sum #</div><div>Average: $#= average #</div>"
+                            }
+                            break;
+                        default:
+                            colProps = {
+                                ...colProps
+                            }
+                    }
+                    return colProps
+                }),
+                change: this.handleChange,
+                ...otherProps,
+                height: $(document).height() - 25
+
+            }
+        }
     }
 
     componentDidMount() {
@@ -149,9 +157,15 @@ class App extends Component {
         return opts;
     }
 
+    getConfig = () => {
+        let settings = this.grid.getOptions();
+        return kendo.stringify(settings)
+    }
+
     render() {
         const { state } = this
-        const opts = this.verifyOpts(state);
+        const opts = this.verifyOpts(state)
+        console.log(opts)
         return (
             <div style={{ height: 'calc(100% - 100px)' }}>
                 <ReactResizeDetector handleWidth handleHeight refreshMode='throttle' refreshRate={2000}>

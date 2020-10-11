@@ -5,6 +5,7 @@ import EmbeddedGrid from './embed'
 import Jexcel from './jexcel'
 
 export default function App() {
+  console.log('Fail')
   return (
     <Router>
       <Switch>

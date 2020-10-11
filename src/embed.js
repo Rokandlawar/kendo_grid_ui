@@ -1,5 +1,5 @@
 import Grid from './grid'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 export const defaults = {
     dataSource: {
@@ -30,7 +30,7 @@ export const defaults = {
 
 
 export default function Embed(props) {
-
+    const grid = useRef(null);
     const [configs, setConfigs] = useState(() => {
         console.log('props', props)
         if (props) return { ...defaults, ...props }
@@ -41,14 +41,18 @@ export default function Embed(props) {
     const handleInput = (evt) => {
         console.log('event', evt)
         if (evt.data) {
-            const { columns, url, param, sort } = evt.data
+            const { columns, url, param, sort, save, settings } = evt.data
             if (columns && url && param) {
                 try {
-                    setConfigs({ ...configs, columns: columns, url: url, param, sort })
+                    setConfigs({ ...configs, columns: columns, url: url, param, sort, settings })
                 }
                 catch (ex) {
                     console.log(ex, 'JSON Failed')
                 }
+            }
+            if (save === true) {
+                let config = grid.current.getConfig();
+                window.parent.postMessage({ config }, '*')
             }
         }
     }
@@ -56,7 +60,7 @@ export default function Embed(props) {
     const onSelection = (row) => {
         console.log('selected', row)
         if (row) {
-            window.parent.postMessage(row, "*")
+            window.parent.postMessage({ selected: row }, "*")
         }
     }
 
@@ -67,7 +71,7 @@ export default function Embed(props) {
 
     if (columns.length > 0)
         return (
-            <Grid {...configs} edit={onSelection} />
+            <Grid ref={grid} {...configs} edit={onSelection} />
         )
     else return null
 }
